@@ -1,7 +1,7 @@
 import os
 import argparse
 
-# 실행방법 : python .\encrypt.py -target C:\Users\kwon\Desktop\ProjectTest\KIOSK_IMD
+# 실행방법 : python .\encrypt.py -target C:\Users\kwon\Desktop\ProjectTest\KIOSK_IMD\src
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)

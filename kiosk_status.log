@@ -1,0 +1,17 @@
+INFO:API_LOG:[2022-08-11-09:43:00][check_status_sbc]
+{"resultCode": "000", "resultMsg": "SUCCESS"}
+INFO:QRC_LOG:[2022-08-11-09:43:21][SP Server Access ERROR] : HTTPConnectionPool(host='localhost', port=8281): Max retries exceeded with url: /qrcpm/start (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x03A26B08>: Failed to establish a new connection: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다'))
+INFO:API_LOG:[2022-08-11-09:47:34][check_status_sbc]
+{"resultCode": "000", "resultMsg": "SUCCESS"}
+INFO:QRC_LOG:[2022-08-11-09:48:03][Mobile ID Auth Success] : {'trxcode': '2022081109480375719B01D98', 'svcCode': 'zkp.1', 'mode': 'proxy', 'deviceId': 's_00001', 'branchName': 'interminds', 'zkpNonce': '444279909797862464427548', 'vpVerifyResult': 'Y', 'trxStsCode': '0004', 'profileSendDt': '2022-08-11 09:48:07.852201', 'imgSendDt': '2022-08-11 09:48:13.208732', 'regDt': '2022-08-11 09:48:04.594505', 'udtDt': '2022-08-11 09:48:13.208732'}
+INFO:EZR_LOG:[2022-08-11-09:48:18][TokenRes Fail]
+{'SUC': '01', 'MSG': 'User Cancel !'}
+INFO:API_LOG:[2022-08-11-09:48:42][check_status_sbc]
+{"resultCode": "000", "resultMsg": "SUCCESS"}
+INFO:QRC_LOG:[2022-08-11-09:48:52][Mobile ID Auth Success] : {'trxcode': '2022081109485072884114A82', 'svcCode': 'zkp.1', 'mode': 'proxy', 'deviceId': 's_00001', 'branchName': 'interminds', 'zkpNonce': '350730652558921100291505', 'vpVerifyResult': 'Y', 'trxStsCode': '0004', 'profileSendDt': '2022-08-11 09:48:56.778901', 'imgSendDt': '2022-08-11 09:49:02.299164', 'regDt': '2022-08-11 09:48:54.352828', 'udtDt': '2022-08-11 09:49:02.299164'}
+INFO:EZR_LOG:[2022-08-11-09:49:07][TokenRes Fail]
+{'SUC': '01', 'MSG': 'User Cancel !'}
+INFO:API_LOG:[2022-08-11-09:50:13][check_status_sbc]
+{"resultCode": "000", "resultMsg": "SUCCESS"}
+INFO:EZR_LOG:[2022-08-11-09:50:15][TokenRes Fail]
+{'SUC': '01', 'MSG': 'User Cancel !'}
