@@ -65,10 +65,10 @@ def auth_mobile_id():
         }
         response = requests.post("http://localhost:8281/qrcpm/start", data=json.dumps(vo),
                             headers={"Content-Type": "application/json; charset=utf-8"}, timeout=40)
+
         res = response.json()
         res_result = res["result"]
         res_data = json.loads(base64.b64decode(res["data"]))
-
         page = rd.get('nowPage')
         if page == b'wait_mobileid':
             if res_result:
@@ -81,6 +81,7 @@ def auth_mobile_id():
             else:
                 rd.set('msg', 'auth_fail')
                 logger.info(f'[{log_time}]' + f"[SP Server Access Fail] : {res_data}")
+
     except Exception as e:
         logger.info(f'[{log_time}]' + f"[SP Server Access ERROR] : {e}")
         page = rd.get('nowPage')
@@ -106,6 +107,7 @@ while True:
                 auth_pass()
             elif auth_type == b'mobile_id':
                 rd.set('msg','mobile_id')
+                rd.set('nowPage', 'wait_mobileid')
                 auth_mobile_id()
 
     except Exception as err:

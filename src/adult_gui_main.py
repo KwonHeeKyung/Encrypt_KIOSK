@@ -209,7 +209,7 @@ class Uipage:
 
     #모바일 신분증 QR 인식 후
     def WAIT_MOBILEID(self):
-        self.rd.set('nowPage','wait_mobileid')
+        # self.rd.set('nowPage','wait_mobileid')
         self.canvas.create_image(0, 0, anchor=NW, image=self.wait_mobileid_img)
 
     #정보제공동의
