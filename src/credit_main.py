@@ -83,10 +83,10 @@ def tokenRes():
                     logger.info(f'[{log_time}]'+"[체크카드 선승인 SUCCESS]" +'\n'+ f'[카드사 : {provis_data["RS14"]}, 선승인금액 : {provis_data["RQ07"]}, 승인번호 : {provis_data["RS09"]}, 고유거래번호 : {provis_data["RS08"]}]'+ '\n' + f'[선승인 취소 전문] : {cancel_text}')
                 elif provis_data['RS04'] == '8035':
                     rd.set('msg', 'no_money')
-                    logger.info(f'[{log_time}]'+"[카드 잔액 부족]")
+                    logger.info(f'[{log_time}]'+"[카드 잔액 부족]" + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
                 else:
                     rd.set('msg','003')
-                    logger.info(f'[{log_time}]' + "[선승인 요청 Fail]")
+                    logger.info(f'[{log_time}]' + "[선승인 요청 Fail]" + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
 
 #체크카드 선승인 취소
 def cancelProvis():
@@ -99,9 +99,11 @@ def cancelProvis():
         cancelRes.raise_for_status()
         cancelRes.encoding = 'UTF-8'
         cancelRes_text = json.loads(cancelRes.text[cancelRes.text.index('(') + 1: cancelRes.text.rindex(')')].replace("'", '"'))
-        logger.info(f'[{log_time}]'+"[선승인 취소]" +'\n'+
+        if cancelRes_text["RS04"] == '0000':
+            logger.info(f'[{log_time}]'+"[선승인 취소]" +'\n'+
                     f'[카드사 : {cancelRes_text["RS14"]}, 승인번호 : {cancelRes_text["RS09"]}, 고유거래번호 : {cancelRes_text["RS08"]}, 거래취소여부 : {cancelRes_text["RS04"]}]')
-
+        else:
+            logger.info(cancelRes_text)
 #본결제
 def payment():
     order_list = rd.get('ol')
