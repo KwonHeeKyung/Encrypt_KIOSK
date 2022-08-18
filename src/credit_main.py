@@ -37,32 +37,32 @@ def tokenRes():
     token_data = json.loads(tokenRes.text[tokenRes.text.index('(') + 1: tokenRes.text.rindex(')')].replace("'", '"'))
     if token_data["SUC"] == '01':
         rd.set('msg','003')
-        logger.info(f'[{log_time}]' + '[TokenRes Fail]' + '\n' +str(token_data))
+        logger.info(f'[{log_time} | TokenRes Fail]' + '\n' +str(token_data))
     if token_data["SUC"] == '00' and token_data["RS04"]=='8001' and token_data["RS31"].strip() == 'M':
         rd.set('msg', 'sspay_deny')
-        logger.info(f'[{log_time}]' + "[삼성페이 거절]")
+        logger.info(f'[{log_time} | 삼성페이 거절]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'M':
         rd.set('msg', 'sspay_deny')
-        logger.info(f'[{log_time}]' + "[모바일 결제 거절]")
+        logger.info(f'[{log_time} | 모바일 결제 거절]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() != 'C':
         rd.set('msg', 'sspay_deny')
-        logger.info(f'[{log_time}]' + "[카드 아닌데 토큰발급됨]")
+        logger.info(f'[{log_time} | 카드 아닌데 토큰발급됨]')
     if token_data["SUC"] == '00' and token_data['RS04'] != '0000' and token_data["RS31"].strip() == 'C':
         rd.set('msg', '003')
-        logger.info(f'[{log_time}]' + "[카드 맞는데 토큰발급 실패함]")
+        logger.info(f'[{log_time} | 카드 맞는데 토큰발급 실패함]')
     if token_data["SUC"] == '00' and token_data['RS04'] != '0000' and token_data["RS31"].strip() != 'C':
         rd.set('msg', 'sspay_deny')
-        logger.info(f'[{log_time}]' + "[카드 아니고 토큰 발급 실패함]")
+        logger.info(f'[{log_time} | 카드 아니고 토큰 발급 실패함]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'C':
         if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
                 rd.set('msg', 'hh_deny')
-                logger.info(f'[{log_time}]'+"[하나/현대카드 수기특약 거절]")
+                logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
         else:
-            logger.info(f'[{log_time}]' + "[TokenRes Result]" + '\n' + f'[TID : {token_data["RQ02"]}, 응답코드 :{token_data["RS04"]}, 카드사 코드 : {token_data["RS11"]}, Token : {token_data["RS17"]}]')
+            logger.info(f'[{log_time} | TokenRes Result]' + '\n' + f'[TID : {token_data["RQ02"]}, 응답코드 :{token_data["RS04"]}, 카드사 코드 : {token_data["RS11"]}, Token : {token_data["RS17"]}]')
             rd.set('token', token_data['RS17'])
             token = rd.get('token').decode('utf-8')
             re_text = f'http://localhost:8090/?callback=jsonp12345678983543344&REQ=D1^^(재청구금액)^00^^^^^^^^30^A^^^^^^^^^^^^^^^^^^^^TOKNKIC{token}^^^^'
-            logger.info(f'[{log_time}]'+"[재승인 요청시 전문]"+'\n'+re_text)
+            logger.info(f'[{log_time} | 재승인 요청시 전문]'+'\n'+f'[{re_text}]')
             if token_data['RS34'] == 'N':
                 # 신용카드는 직행
                 rd.set('msg', 'remove')
@@ -80,13 +80,13 @@ def tokenRes():
                     rd.set('msg', 'remove')
                     rd.set('method', 'check')
                     cancel_text = f'http://localhost:8090/?callback=jsonp12345678983543344&REQ=D4^^30000^^{refund_time}^{provis_data["RS09"]}^^^^^^20^A^^^^^^^{provis_data["RS08"]}^^^^^^^^^^^^^^^^^'
-                    logger.info(f'[{log_time}]'+"[체크카드 선승인 SUCCESS]" +'\n'+ f'[카드사 : {provis_data["RS14"]}, 선승인금액 : {provis_data["RQ07"]}, 승인번호 : {provis_data["RS09"]}, 고유거래번호 : {provis_data["RS08"]}]'+ '\n' + f'[선승인 취소 전문] : {cancel_text}')
+                    logger.info(f'[{log_time} | 체크카드 선승인 SUCCESS]' +'\n'+ f'[카드사 : {provis_data["RS14"]}, 선승인금액 : {provis_data["RQ07"]}, 승인번호 : {provis_data["RS09"]}, 고유거래번호 : {provis_data["RS08"]}]'+ '\n' + f'[선승인 취소 전문 : {cancel_text}]')
                 elif provis_data['RS04'] == '8035':
                     rd.set('msg', 'no_money')
-                    logger.info(f'[{log_time}]'+"[카드 잔액 부족]" + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
+                    logger.info(f'[{log_time} | 카드 잔액 부족]' + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
                 else:
                     rd.set('msg','003')
-                    logger.info(f'[{log_time}]' + "[선승인 요청 Fail]" + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
+                    logger.info(f'[{log_time} | 선승인 요청 Fail]' + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
 
 #체크카드 선승인 취소
 def cancelProvis():
@@ -100,10 +100,10 @@ def cancelProvis():
         cancelRes.encoding = 'UTF-8'
         cancelRes_text = json.loads(cancelRes.text[cancelRes.text.index('(') + 1: cancelRes.text.rindex(')')].replace("'", '"'))
         if cancelRes_text["RS04"] == '0000':
-            logger.info(f'[{log_time}]'+"[선승인 취소]" +'\n'+
+            logger.info(f'[{log_time} | 선승인 취소]' +'\n'+
                     f'[카드사 : {cancelRes_text["RS14"]}, 승인번호 : {cancelRes_text["RS09"]}, 고유거래번호 : {cancelRes_text["RS08"]}, 거래취소여부 : {cancelRes_text["RS04"]}]')
         else:
-            logger.info(cancelRes_text)
+            logger.info(str(cancelRes_text["RS16"]) + str(cancelRes_text["RS17"]))
 #본결제
 def payment():
     order_list = rd.get('ol')
@@ -123,15 +123,15 @@ def payment():
         if pay_data['RS04'] == '0000':
             rd.set('msg', 'end')
             refund_param = f'http://localhost:8090/?callback=jsonp12345678983543344&REQ=D4^^{total_price}^^{refund_time}^{pay_data["RS09"]}^^^^^^20^A^^^^^^^{pay_data["RS08"]}^^^^^^^^^^^^^^^^^'
-            logger.info(f'[{log_time}]'+"[결제 성공]" +'\n'+
+            logger.info(f'[{log_time} | 결제 성공]' +'\n'+
                         f'[카드사 : {pay_data["RS14"]}, 결제청구액 : {pay_data["RQ07"]}, 승인번호 : {pay_data["RS09"]}, 고유거래번호 : {pay_data["RS08"]}]'+'\n'+
                         f'[본거래 취소전문 : {refund_param}]')
         elif pay_data['RS04'] == '8035':
             rd.set('msg', 'no_money')
-            logger.info(f'[{log_time}]'+"[체크카드 잔액부족]")
+            logger.info(f'[{log_time} | 체크카드 잔액부족]')
         elif pay_data['RS04'] == '8350':
             rd.set('msg', '003')
-            logger.info(f'[{log_time}]'+"[도난 분실카드]")
+            logger.info(f'[{log_time} | 도난 분실카드]')
         else:
             rd.set('msg', '003')
     rd.delete('ap')
@@ -165,12 +165,12 @@ while True:
                 rd.set('door', 'open')
                 rd.set('msg', 'shopping')
                 rd.set('nowPage', 'shopping')
-                logger.info(f'[{log_time}]'+"[카드 제거]")
+                logger.info(f'[{log_time} | 카드 제거]')
             elif ck_check() == '010':
                 ck_check()
                 rd.set('msg', 'remove')
     except Exception as err:
         rd.set('msg', '003')
-        logger.info("[PAYMENT FAIL]")
+        logger.info('[PAYMENT FAIL]')
         logger.info(err)
 

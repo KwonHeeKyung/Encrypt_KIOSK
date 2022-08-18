@@ -29,23 +29,21 @@ logger = logging.getLogger('API_LOG')
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 msg = rd.get('msg')
 
-
 # 상태조회
 def check_status():
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     res = requests.post(f'{cf_master_server}check_status_sbc',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id},
-                        verify=False)
+                        verify=False, timeout=30)
     json_data = json.loads(res.text)
     result_code = str(json_data['resultCode'])
     if result_code == '000':
         rd.set('msg', '000')
-        logger.info(f'[{log_time}]' + '[check_status_sbc]' + '\n' + str(res.text))
+        logger.info(f'[{log_time} | check_status_sbc]' + '\n' + str(res.text))
     else:
         rd.set('msg', '001')
-        logger.info(f'[{log_time}]' + '[check_status_sbc_fail]' + '\n' + str(res.text))
-
+        logger.info(f'[{log_time} | check_status_sbc_fail]' + '\n' + str(res.text))
 
 # 문열림
 def door_open():
@@ -60,7 +58,7 @@ def door_close():
                         json={'storeId': cf_store_id, 'deviceId': cf_device_id, 'barcode': '1234',
                               "needSalesInfo": "true"}, verify=False)
     json_data = json.loads(res.text)
-    logger.info(f'[{log_time}]' + "[LET's INFER]" + '\n' + str(json_data))
+    logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(json_data))
     result_code = str(json_data['resultCode'])
     if result_code == '000':
         order_list = {'orderList': json_data["data"]['orderList']}
@@ -76,9 +74,8 @@ def door_close():
             rd.set('msg', 'end_none')
     else:
         rd.set('msg', '003')
-        logger.info(f'[{log_time}]' + "[INF FAIL]")
+        logger.info(f'[{log_time} | INF FAIL]')
         logger.info(res.text)
-
 
 # 관리자 문열림
 def admin_open():
@@ -86,8 +83,7 @@ def admin_open():
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     res = requests.post(f'{cf_master_server}manage_door', json={'deviceId': cf_device_id, 'doorStatus': 'O'},
                         verify=False)
-    logger.info(f'[{log_time}]' + "[관리자 OPEN SUCCESS]"+ '\n' + str(res.text))
-
+    logger.info(f'[{log_time} | 관리자 OPEN SUCCESS]' + '\n' + str(res.text))
 
 # 관리자 문닫힘
 def admin_close():
@@ -95,7 +91,7 @@ def admin_close():
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     res = requests.post(f'{cf_master_server}manage_door', json={'deviceId': cf_device_id, 'doorStatus': 'C'},
                         verify=False)
-    logger.info(f'[{log_time}]' + "[관리자 CLOSE SUCCESS]" '\n' + str(res.text))
+    logger.info(f'[{log_time} | 관리자 CLOSE SUCCESS]' + '\n' + str(res.text))
     rd.delete('door')
     json_data = json.loads(res.text)
     result_code = str(json_data['resultCode'])
@@ -103,7 +99,6 @@ def admin_close():
         rd.set('msg', 'admin_close')
     else:
         rd.set('msg', '001')
-
 
 # 장치 알림
 def device_err():
@@ -120,5 +115,5 @@ def device_err():
     res = requests.post(f'{cf_network_server}kakao_alarm',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                               "alarmHeader": "alarm", 'subjectHeader': "키오스크", 'alarmContext': text_type}, verify=False)
-    logger.info(f'[{log_time}]' + '[DEVICE ERROR]')
+    logger.info(f'[{log_time} | DEVICE ERROR]')
     logger.info(res.text.replace('\n', ''))

@@ -1,7 +1,6 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
 import os
-
 import serial
 import redis
 import logging
@@ -33,14 +32,14 @@ while True:
         uno = Arduino.readline()
         #문열림
         if door == b'open':
-            logger.info(f'[{log_time}]' + '[DOOR_OPEN --> CLIENT]')
+            logger.info(f'[{log_time} | DOOR_OPEN --> CLIENT]')
             Arduino.write(str('1').encode('utf-8'))
             rd.set('door','customer')
             request_main.door_open()
         #100초 알림
         elif door == b'customer' or door == b'admin_open':
             cnt += 1
-            if cnt > 200:
+            if cnt > 3000:
                 logger.info(log_time)
                 if door == b'customer':
                     playsound(cf_path + 'voice/' + "long.mp3", False)
@@ -64,7 +63,7 @@ while True:
                 request_main.admin_close()
             #고객
             elif door == b'customer':
-                logger.info(f'[{log_time}]' + '[DOOR_CLOSE --> CLIENT]')
+                logger.info(f'[{log_time} | DOOR_CLOSE --> CLIENT]')
                 rd.delete('door')
                 rd.set("msg",'infer')
                 request_main.door_close()
@@ -72,8 +71,7 @@ while True:
         if uno == b'2\r':
             rd.set('err_type','except')
             request_main.device_err()
-            logger.info(f'[{log_time}]' + '[DOOR LOCK ERR]')
-
+            logger.info(f'[{log_time} | DOOR LOCK ERR]')
     except Exception as err:
         rd.set('err_type', 'except')
         request_main.device_err()

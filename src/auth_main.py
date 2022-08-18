@@ -28,7 +28,7 @@ logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)
 logger = logging.getLogger('QRC_LOG')
 NICEPOS = ctypes.windll.LoadLibrary(cf_path + 'DLL/NICEPOSICV105.dll')
 
-def auth_pass():
+def pass_auth(barcode):
     blank = ' '
     cat_id = '3946768'
     req_data = bytes(
@@ -39,16 +39,16 @@ def auth_pass():
         dll_log = open(cf_path + f'log/{nvcat_log}.log')  # 응답값은 log파일에 저장
         response = dll_log.readlines()[-3]  # log파일 밑에서 3번째줄이 응답 전문
         result = response.split(' ')[24][10:14]  # No.27 = 응답메세지
-        logger.info(response.replace('\n', ''))
         if result == '0000':
             rd.set('msg', 'sign')
-            logger.info(f'[{log_time}]' + '[DLL PosSend2 Success] : NVCAT result code :' + result)
+            logger.info(
+                f'[{log_time} | DLL PosSend2 Success | NVCAT result code : {result}]')
         else:
             rd.set('msg', 'auth_fail')
-            logger.info(f'[{log_time}]' + '[Auth Fail] : NVCAT result code :' + result)
+            logger.info(f'[{log_time} | Auth Fail | NVCAT result code : {result}]')
     else:
         rd.set('msg', 'auth_fail')
-        logger.info(f'[{log_time}]' + "[DLL PosSend2 Fail]")
+        logger.info(f'[{log_time} | DLL PosSend2 Fail]')
 
 def auth_mobile_id():
     try:
@@ -63,6 +63,7 @@ def auth_mobile_id():
             'result': False,
             'data': str(base64.b64encode(json.dumps(data).encode()), 'utf-8')
         }
+
         response = requests.post("http://localhost:8281/qrcpm/start", data=json.dumps(vo),
                             headers={"Content-Type": "application/json; charset=utf-8"}, timeout=40)
 
@@ -102,17 +103,19 @@ while True:
             rd.set('door', 'admin')
         #PASS앱 성인 인증
         if len(barcode) > 0 and page == b'auth_adult':
-            auth_type = rd.get('auth_type')
-            if auth_type == b'pass':
-                auth_pass()
-            elif auth_type == b'mobile_id':
+            if 20 < len(barcode) < 25:
+                pass_auth(barcode)
+            elif len(barcode) > 100:
                 rd.set('msg','mobile_id')
                 rd.set('nowPage', 'wait_mobileid')
                 auth_mobile_id()
+            else:
+                logger.info(f'[{log_time}] barcode:{barcode}')
+                rd.set('msg', 'auth_fail')
 
     except Exception as err:
         rd.set('err_type', 'except')
         request_main.device_err()
-        logger.info("[SCANNER FAIL]")
+        logger.info('[SCANNER FAIL]')
         logger.info(err)
         break
