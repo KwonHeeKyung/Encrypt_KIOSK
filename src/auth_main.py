@@ -41,11 +41,10 @@ def pass_auth(barcode):
         result = response.split(' ')[24][10:14]  # No.27 = 응답메세지
         if result == '0000':
             rd.set('msg', 'sign')
-            logger.info(
-                f'[{log_time} | DLL PosSend2 Success | NVCAT result code : {result}]')
+            logger.info(f'[{log_time} | NVCAT result code : {result}]')
         else:
             rd.set('msg', 'auth_fail')
-            logger.info(f'[{log_time} | Auth Fail | NVCAT result code : {result}]')
+            logger.info(f'[{log_time} | NVCAT result code : {result}]')
     else:
         rd.set('msg', 'auth_fail')
         logger.info(f'[{log_time} | DLL PosSend2 Fail]')
@@ -110,7 +109,7 @@ while True:
                 rd.set('nowPage', 'wait_mobileid')
                 auth_mobile_id()
             else:
-                logger.info(f'[{log_time}] barcode:{barcode}')
+                logger.info(f'[{log_time}] Auth Fail Barcode:{barcode}')
                 rd.set('msg', 'auth_fail')
 
     except Exception as err:
