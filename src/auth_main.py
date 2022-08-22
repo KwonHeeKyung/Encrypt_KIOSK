@@ -18,6 +18,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
 cf_path = config['path']['path']
+storeId = config['refrigerators']['storeId']
 cf_scanner_port = config['refrigerators']['scanner']
 deviceId = config['refrigerators']['deviceId']
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -55,7 +56,7 @@ def auth_mobile_id():
             "cmd": 520,             # QR-CPM - 520 고정
             "m120Base64": barcode,
             "svcCode": "zkp.1",     # zkp.1 - 성인여부 제출 고정
-            "branchName": "interminds",
+            "branchName": storeId,
             "deviceId": deviceId
         }
         vo = {
