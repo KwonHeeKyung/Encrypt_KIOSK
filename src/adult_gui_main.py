@@ -22,6 +22,7 @@ class Uipage:
         self.root = root
         self.root.title("INTERMINDS")
         self.cf_path = config['path']['path']
+        self.deviceId = config['refrigerators']['deviceId']
         self.canvas = Canvas(self.root, height=1024, width=600)
         self.start_img = PhotoImage(file=self.cf_path+'asset/START.png')
         self.auth_adult_img = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT.png')
@@ -30,7 +31,9 @@ class Uipage:
         self.sign_img = PhotoImage(file=self.cf_path+ 'asset/SIGN.png')
         self.card_img = PhotoImage(file=self.cf_path+'asset/CARD_INSERT.png')
         self.remove_img = PhotoImage(file=self.cf_path+'asset/REMOVE_CARD.png')
-        self.shop_img = PhotoImage(file=self.cf_path+'asset/SHOPPING.png')
+        self.shop_img = PhotoImage(file=self.cf_path + 'asset/SHOPPING.png')
+        if self.deviceId[0] == 'c':
+            self.shop_img = PhotoImage(file=self.cf_path + 'asset/SHOPPING_CIGARETTE.png')
         self.device_err_img = PhotoImage(file=self.cf_path+'asset/DEVICE_ERR.png')
         self.fail_img = PhotoImage(file=self.cf_path+'asset/DEVICE_FAIL.png')
         self.hh_deny_img = PhotoImage(file=self.cf_path+'asset/HH_DENY.png')
