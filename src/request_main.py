@@ -36,9 +36,7 @@ def check_status():
     res = requests.post(f'{cf_master_server}check_status_sbc',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id},
                         verify=False, timeout=30)
-    json_data = json.loads(res.text)
-    result_code = str(json_data['resultCode'])
-    if result_code == '000':
+    if json.loads(res.text)['resultCode'] == '000':
         rd.set('msg', '000')
         logger.info(f'[{log_time} | check_status_sbc]' + '\n' + str(res.text))
     else:
@@ -57,11 +55,9 @@ def door_close():
     res = requests.post(f'{cf_master_server}door_closed',
                         json={'storeId': cf_store_id, 'deviceId': cf_device_id, 'barcode': '1234',
                               "needSalesInfo": "true"}, verify=False)
-    json_data = json.loads(res.text)
-    logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(json_data))
-    result_code = str(json_data['resultCode'])
-    if result_code == '000':
-        order_list = {'orderList': json_data["data"]['orderList']}
+    logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(res.text))
+    if json.loads(res.text)['resultCode'] == '000':
+        order_list = {'orderList': json.loads(res.text)["data"]['orderList']}
         if len(order_list['orderList']) > 0:
             data = []
             for order_list in order_list['orderList']:
@@ -92,13 +88,11 @@ def admin_close():
     res = requests.post(f'{cf_master_server}manage_door', json={'deviceId': cf_device_id, 'doorStatus': 'C'},
                         verify=False)
     logger.info(f'[{log_time} | 관리자 CLOSE SUCCESS]' + '\n' + str(res.text))
-    rd.delete('door')
-    json_data = json.loads(res.text)
-    result_code = str(json_data['resultCode'])
-    if result_code == '000':
+    if json.loads(res.text)['resultCode'] == '000':
         rd.set('msg', 'admin_close')
     else:
         rd.set('msg', '001')
+    rd.delete('door')
 
 # 장치 알림
 def device_err():
