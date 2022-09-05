@@ -26,7 +26,7 @@ class Uipage:
         self.canvas = Canvas(self.root, height=1024, width=600)
         self.start_img = PhotoImage(file=self.cf_path+'asset/START.png')
         self.auth_adult_img = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT.png')
-        self.wait_mobileid_img = PhotoImage(file=self.cf_path + 'asset/AUTH_ADULT_INFO.png')
+        self.auth_wait_img = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT_INFO.png')
         self.auth_fail_img = PhotoImage(file=self.cf_path+'asset/AUTH_FAIL.png')
         self.sign_img = PhotoImage(file=self.cf_path+ 'asset/SIGN.png')
         self.card_img = PhotoImage(file=self.cf_path+'asset/CARD_INSERT.png')
@@ -62,7 +62,7 @@ class Uipage:
     #시작화면 복귀
     def comeback(self):
         page_timer = self.rd.get('nowPage')
-        if page_timer == None:
+        if page_timer is None:
             pass
         elif page_timer == b'sign':
             self.cnt += 1
@@ -78,7 +78,7 @@ class Uipage:
                 return
         elif page_timer == b'end':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 20:
                 self.cnt = 0
                 self.START_PAGE()
                 return
@@ -90,31 +90,31 @@ class Uipage:
                 return
         elif page_timer == b'fail':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 10:
                 self.cnt = 0
                 self.START_PAGE()
                 return
         elif page_timer == b'auth_fail':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 10:
                 self.cnt = 0
                 self.START_PAGE()
                 return
         elif page_timer == b'no_money':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 10:
                 self.cnt = 0
                 self.START_PAGE()
                 return
         elif page_timer == b'hh_deny':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 10:
                 self.cnt = 0
                 self.START_PAGE()
                 return
         elif page_timer == b'sspay_deny':
             self.cnt += 1
-            if self.cnt == 30:
+            if self.cnt == 10:
                 self.cnt = 0
                 self.START_PAGE()
         elif page_timer == b'start':
@@ -123,6 +123,7 @@ class Uipage:
         else:
             self.cnt = 0
         self.root.after(1000, self.comeback)
+
 
     #터치 버튼 이벤트
     def S_BTN(self, event):
@@ -136,36 +137,12 @@ class Uipage:
             if 110 < event.x < 280 and 900 < event.y < 970:
                 self.START_PAGE()
             if 320 < event.x < 480 and 900 < event.y < 970:
-                if self.signLen >10:
+                if self.signLen > 10:
                     log_time = datetime.datetime.now()
                     log_time = log_time.strftime("%Y-%m-%d-%H-%M-%S")
                     self.signImage.save(self.cf_path+f'consent/{log_time}.bmp')
                     self.rd.set('msg', 'card')
-        elif flg == b'auth_adult':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'wait_mobileid':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'auth_fail':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'fail':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'no_money':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'hh_deny':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'sspay_deny':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE() 
-        elif flg == b'end':
-            if 210 < event.x < 380 and 900 < event.y < 990:
-                self.START_PAGE()
-        elif flg == b'end_none':
+        elif flg == b'auth_adult' or b'wait_mobileid' or  b'auth_fail' or b'fail' or b'no_money' or b'hh_deny' or b'sspay_deny' or b'end' or b'end_none':
             if 210 < event.x < 380 and 900 < event.y < 990:
                 self.START_PAGE()
 
@@ -183,16 +160,18 @@ class Uipage:
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_img)
         self.comeback()
 
+    #모바일 신분증 앱 인증
+    def WAIT_ADULT(self):
+        # self.rd.set('nowPage', 'wait_mobileid')
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_wait_img)
+        # self.comeback()
+
     #성인 인증 실패
     def AUTH_FAIL(self):
         self.rd.set('nowPage', 'auth_fail')
         self.cnt = 0
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_fail_img)
         self.comeback()
-
-    #모바일 신분증 QR 인식 후
-    def WAIT_MOBILEID(self):
-        self.canvas.create_image(0, 0, anchor=NW, image=self.wait_mobileid_img)
 
     #정보제공동의
     def SIGN_PAGE(self):
@@ -346,6 +325,11 @@ class Uipage:
                 self.playWav('auth_adult')
                 self.rd.delete('msg')
 
+            elif msg == b'mobile_id':
+                self.WAIT_ADULT()
+                self.playWav('wait_mobileid')
+                self.rd.delete('msg')
+
             elif msg == b'001':
                 self.FAIL_PAGE()
                 self.playWav('device_fail') 
@@ -383,11 +367,6 @@ class Uipage:
             elif msg == b'auth_fail':
                 self.AUTH_FAIL()
                 self.playWav('auth_fail')
-                self.rd.delete("msg")
-
-            elif msg == b'mobile_id':
-                self.WAIT_MOBILEID()
-                self.playWav('wait_mobileid')
                 self.rd.delete("msg")
 
             elif msg == b'003':
