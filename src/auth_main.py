@@ -21,6 +21,7 @@ cf_path = config['path']['path']
 storeId = config['refrigerators']['storeId']
 cf_scanner_port = config['refrigerators']['scanner']
 deviceId = config['refrigerators']['deviceId']
+companyId = config['refrigerators']['companyId']
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 Scanner = serial.Serial(port=cf_scanner_port, baudrate=9600, timeout=1)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -86,8 +87,41 @@ def auth_mobile_id():
     except Exception as e:
         logger.info(f'[{log_time}]' + f"[SP Server Access ERROR] : {e}")
         page = rd.get('nowPage')
-        if page == b'auth_adult' or page == b'wait_mobileid':
+        if page == b'mobile_auth' or page == b'wait_mobileid':
             rd.set('msg', 'auth_fail')
+
+def rrn_auth():
+    try:
+        data = {
+            "svcTypeGb": 'IDM',
+            "svcCustSubCd": companyId,
+            "svcCustSupNm": storeId,
+            "svcCustCd": deviceId,
+            "svcCustNm": deviceId,
+            "svcInstId": '3001000009',
+            "svcSrvcCd": '02',
+            "svcMthCd": '01',
+            "svcQrCd": barcode
+        }
+
+        res = requests.post("https://idmc.jumin.go.kr/API/MobileIdcardAPITypeAInfo.do", data=json.dumps(data),
+                            headers={"Content-Type": "application/json; charset=utf-8"}, timeout=60)
+
+        result = res.json()
+        if result['recTruflsResultCd'] == '00':     #진위결과코드 - 00: 성공 01: 실패
+            if result['recAdltResultCd3'] == '00':  #성인인증결과(만19세 1월1일 기준) - 00: 성년 01: 미성년
+                rd.set('msg', 'sign')
+                logger.info(f'[{log_time}] [RRN Auth Success]')
+            else:
+                rd.set('msg', 'auth_fail')
+                logger.info(f'[{log_time}] [RRN Auth Fail] : under age')
+        else:
+            rd.set('msg', 'auth_fail')
+            logger.info(f'[{log_time}] [RRN Auth Fail] : {result}')
+
+    except Exception as e:
+        logger.info(f'[{log_time}]' + f"[RRN API SEND ERROR] : {e}")
+        rd.set('msg', 'auth_fail')
 
 while True:
     try:
@@ -102,16 +136,14 @@ while True:
             rd.set('msg', 'admin')
             rd.set('door', 'admin')
         #PASS앱 성인 인증
-        if len(barcode) > 0 and page == b'auth_adult':
-            if 20 < len(barcode) < 25:
-                pass_auth(barcode)
-            elif len(barcode) > 100:
-                rd.set('msg','mobile_id')
-                rd.set('nowPage', 'wait_mobileid')
-                auth_mobile_id()
-            else:
-                logger.info(f'[{log_time}] Auth Fail Barcode:{barcode}')
-                rd.set('msg', 'auth_fail')
+        if len(barcode) > 0 and page == b'pass_auth':
+            pass_auth(barcode)
+        elif len(barcode) > 0 and page == b'mobile_auth':
+            rd.set('msg', 'mobile_id')
+            rd.set('nowPage', 'wait_mobileid')
+            auth_mobile_id()
+        elif len(barcode) > 0 and page == b'rrn_auth':
+            rrn_auth()
 
     except Exception as err:
         rd.set('err_type', 'except')

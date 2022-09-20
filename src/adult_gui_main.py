@@ -25,7 +25,10 @@ class Uipage:
         self.deviceId = config['refrigerators']['deviceId']
         self.canvas = Canvas(self.root, height=1024, width=600)
         self.start_img = PhotoImage(file=self.cf_path+'asset/START.png')
+        self.auth_select_img = PhotoImage(file=self.cf_path+'asset/SELECT_ADULT.png')
         self.auth_adult_img = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT.png')
+        self.auth_adult_mobile = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT_MOBILE.png')
+        self.auth_adult_rrn = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT_RRN.png')
         self.auth_wait_img = PhotoImage(file=self.cf_path+'asset/AUTH_ADULT_INFO.png')
         self.auth_fail_img = PhotoImage(file=self.cf_path+'asset/AUTH_FAIL.png')
         self.sign_img = PhotoImage(file=self.cf_path+ 'asset/SIGN.png')
@@ -71,6 +74,24 @@ class Uipage:
                 self.START_PAGE()
                 return
         elif page_timer == b'auth_adult':
+            self.cnt += 1
+            if self.cnt >= 100:
+                self.cnt = 0
+                self.START_PAGE()
+                return
+        elif page_timer == b'pass_auth':
+            self.cnt += 1
+            if self.cnt >= 100:
+                self.cnt = 0
+                self.START_PAGE()
+                return
+        elif page_timer == b'mobile_auth':
+            self.cnt += 1
+            if self.cnt >= 100:
+                self.cnt = 0
+                self.START_PAGE()
+                return
+        elif page_timer == b'rrn_auth':
             self.cnt += 1
             if self.cnt >= 100:
                 self.cnt = 0
@@ -142,9 +163,16 @@ class Uipage:
                     log_time = log_time.strftime("%Y-%m-%d-%H-%M-%S")
                     self.signImage.save(self.cf_path+f'consent/{log_time}.bmp')
                     self.rd.set('msg', 'card')
-        elif flg == b'auth_adult' or b'wait_mobileid' or  b'auth_fail' or b'fail' or b'no_money' or b'hh_deny' or b'sspay_deny' or b'end' or b'end_none':
+        elif flg == b'auth_adult' or b'wait_mobileid' or  b'auth_fail' or b'fail' or b'no_money' or b'hh_deny' or b'sspay_deny' or b'end' or b'end_none'\
+                or b'pass_auth' or b'mobile_auth' or b'rrn_auth':
             if 210 < event.x < 380 and 900 < event.y < 990:
                 self.START_PAGE()
+            if flg == b'auth_adult' and 80 < event.x < 190 and 650 < event.y < 780:
+                self.AUTH_PASS()
+            elif flg == b'auth_adult' and 230 < event.x < 360 and 650 < event.y < 780:
+                self.AUTH_MOBILE()
+            elif flg == b'auth_adult' and 395 < event.x < 505 and 650 < event.y < 780:
+                self.AUTH_RRN()
 
     #시작 화면
     def START_PAGE(self):
@@ -157,14 +185,33 @@ class Uipage:
     #성인 인증 요청
     def AUTH_ADULT(self):
         self.rd.set('nowPage', 'auth_adult')
-        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_select_img)
         self.comeback()
 
-    #모바일 신분증 앱 인증
+    # PASS 인증
+    def AUTH_PASS(self):
+        self.rd.set('nowPage', 'pass_auth')
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_img)
+        self.cnt = 0
+        self.playWav('auth_pass')
+
+    # 모바일 신분증 인증 QR 스캔
+    def AUTH_MOBILE(self):
+        self.rd.set('nowPage','mobile_auth')
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_mobile)
+        self.cnt = 0
+        self.playWav('auth_mobile')
+
+    #모바일 신분증 인증 정보보내기
     def WAIT_ADULT(self):
-        # self.rd.set('nowPage', 'wait_mobileid')
         self.canvas.create_image(0, 0, anchor=NW, image=self.auth_wait_img)
-        # self.comeback()
+
+    # 정부24 주민등록증 모바일 확인 서비스
+    def AUTH_RRN(self):
+        self.rd.set('nowPage', 'rrn_auth')
+        self.canvas.create_image(0, 0, anchor=NW, image=self.auth_adult_rrn)
+        self.cnt = 0
+        self.playWav('auth_rrn')
 
     #성인 인증 실패
     def AUTH_FAIL(self):
@@ -186,7 +233,8 @@ class Uipage:
         self.drawingArea.bind("<ButtonRelease-1>", self.b1up)
         self.signImage = Image.new("RGB", (500, 200), (255, 255, 255))
         self.draw = ImageDraw.Draw(self.signImage)
-        self.comeback()
+        # self.comeback()
+        self.cnt = 0
 
     # 터치 싸인 그리기 모션 1
     def b1down(self,event):
