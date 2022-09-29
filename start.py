@@ -1,7 +1,9 @@
+# 실행파일 생성: pyinstaller -w -F start.py --icon=start_icon.ico
+
 import datetime
 import subprocess
 import configparser
-
+import time
 import redis
 import urllib3
 import logging
@@ -23,8 +25,8 @@ if __name__ == '__main__':
     door_main = subprocess.Popen("python -u ./src/door_main.py", creationflags=0x08000000)
     auth_main = subprocess.Popen("python -u ./src/auth_main.py", creationflags=0x08000000)
 
-    app_main = subprocess.Popen("python -u ./src/app_main.py", creationflags=0x08000000)
-    # app_main = subprocess.Popen("python -u ./src/adult_app_main.py", creationflags=0x08000000)
+    # app_main = subprocess.Popen("python -u ./src/app_main.py", creationflags=0x08000000)
+    app_main = subprocess.Popen("python -u ./src/adult_app_main.py", creationflags=0x08000000)
 
     re_time = datetime.datetime.now()
 
@@ -38,10 +40,10 @@ if __name__ == '__main__':
                 logger.info(f'[{log_time}] [auth_main.py RESTART]')
                 rd.set('msg', 'auth_fail')
                 re_time = t_time
+        time.sleep(5)
 
     app_main.wait()
     credit_main.kill()
     door_main.kill()
     auth_main.kill()
-
 
