@@ -1,6 +1,7 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
 import os
+import time
 import serial
 import redis
 import logging
@@ -72,6 +73,15 @@ while True:
             rd.set('err_type','except')
             request_main.device_err()
             logger.info(f'[{log_time} | DOOR LOCK ERR]')
+            
+        #냉장고 내부 재시작
+        if door == b'restart':
+            Arduino.write(str('80').encode('utf-8'))
+            rd.delete('door')
+            time.sleep(60)
+            Arduino.write(str('81').encode('utf-8'))
+            time.sleep(60)
+            rd.delete('door')
     except Exception as err:
         rd.set('err_type', 'except')
         request_main.device_err()
