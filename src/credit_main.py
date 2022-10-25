@@ -38,7 +38,7 @@ def tokenRes():
     if token_data["SUC"] == '01':
         rd.set('msg','003')
         logger.info(f'[{log_time} | TokenRes Fail]' + '\n' +str(token_data))
-    if token_data["SUC"] == '00' and token_data["RS04"]=='8001' and token_data["RS31"].strip() == 'M':
+    if token_data["SUC"] == '00' and token_data["RS04"] == '8001' and token_data["RS31"].strip() == 'M':
         rd.set('msg', 'sspay_deny')
         logger.info(f'[{log_time} | 삼성페이 거절]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'M':
@@ -54,10 +54,10 @@ def tokenRes():
         rd.set('msg', 'sspay_deny')
         logger.info(f'[{log_time} | 카드 아니고 토큰 발급 실패함]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'C':
-        if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
-                rd.set('msg', 'hh_deny')
-                logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
-        else:
+        #if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
+        #        rd.set('msg', 'hh_deny')
+        #        logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
+
             logger.info(f'[{log_time} | TokenRes Result]' + '\n' + f'[TID : {token_data["RQ02"]}, 응답코드 :{token_data["RS04"]}, 카드사 코드 : {token_data["RS11"]}, Token : {token_data["RS17"]}]')
             rd.set('token', token_data['RS17'])
             token = rd.get('token').decode('utf-8')
@@ -86,8 +86,10 @@ def tokenRes():
                     logger.info(f'[{log_time} | 카드 잔액 부족]' + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
                 else:
                     rd.set('msg','003')
-                    logger.info(f'[{log_time} | 선승인 요청 Fail]' + '\n' + str(provis_data["RS16"]) + str(provis_data["RS17"]))
-
+                    logger.info(f'[{log_time} | 선승인 요청 Fail]' + '\n' + f'[실패사유 : {provis_data["RS16"]} + {provis_data["RS17"]} ]')
+    else:
+        rd.set('msg', '003')
+        logger.info(f'[{log_time} | Unidentified Err]' + '\n' + str(token_data))
 #체크카드 선승인 취소
 def cancelProvis():
     if method == b'check':
@@ -104,6 +106,7 @@ def cancelProvis():
                     f'[카드사 : {cancelRes_text["RS14"]}, 승인번호 : {cancelRes_text["RS09"]}, 고유거래번호 : {cancelRes_text["RS08"]}, 거래취소여부 : {cancelRes_text["RS04"]}]')
         else:
             logger.info(str(cancelRes_text["RS16"]) + str(cancelRes_text["RS17"]))
+
 #본결제
 def payment():
     order_list = rd.get('ol')
@@ -128,7 +131,9 @@ def payment():
                         f'[본거래 취소전문 : {refund_param}]')
         elif pay_data['RS04'] == '8035':
             rd.set('msg', 'no_money')
+            rd.set('err_type', 'payment')
             logger.info(f'[{log_time} | 체크카드 잔액부족]')
+            request_main.device_err()
         elif pay_data['RS04'] == '8350':
             rd.set('msg', '003')
             logger.info(f'[{log_time} | 도난 분실카드]')
@@ -144,10 +149,10 @@ while True:
     t_time = datetime.datetime.now()
     log_time = t_time.strftime("%Y-%m-%d-%H:%M:%S")
     refund_time = t_time.strftime("%y%m%d")
+    msg = rd.get('msg')
+    nowPage = rd.get('nowPage')
+    method = rd.get('method')
     try:
-        msg = rd.get('msg')
-        nowPage = rd.get('nowPage')
-        method = rd.get('method')
         if msg is None:
             pass
         #토큰 발급
@@ -171,6 +176,5 @@ while True:
                 rd.set('msg', 'remove')
     except Exception as err:
         rd.set('msg', '003')
-        logger.info('[PAYMENT FAIL]')
-        logger.info(err)
+        logger.info(f'[{log_time} | PAYMENT FAIL]' + '\n' + err)
 

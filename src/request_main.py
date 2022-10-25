@@ -48,6 +48,8 @@ def door_open():
     res = requests.post(f'{cf_network_server}door_opened',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                               'barcode': '1234'}, verify=False)
+    return json.loads(res.text)['resultCode']
+
 # 문닫힘
 def door_close():
     log_time = datetime.datetime.now()
@@ -106,6 +108,8 @@ def device_err():
         text_type = '키오스크 장치 에러'
     elif err_type == b'long':
         text_type = '장시간 문열림 알림'
+    elif err_type == b'payment':
+        text_type = '잔액부족 결제실패'
     res = requests.post(f'{cf_network_server}kakao_alarm',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                               "alarmHeader": "alarm", 'subjectHeader': "키오스크", 'alarmContext': text_type}, verify=False)
