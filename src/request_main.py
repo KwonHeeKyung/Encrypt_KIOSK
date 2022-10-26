@@ -1,27 +1,20 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os.path
-
 import redis
 import time
 import json
 import requests
 import urllib3
 import datetime
-# import config
+import config
 import logging
 
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-
-cf_path = config['path']['path']
-cf_company_id = config['refrigerators']['companyId']
-cf_store_id = config['refrigerators']['storeId']
-cf_device_id = config['refrigerators']['deviceId']
-cf_network_server = config['network_info']['server_request_url']
-cf_master_server = config['network_info']['raspberry_base_url']
+cf_path = config.path['path']
+cf_company_id = config.refrigerators['companyId']
+cf_store_id = config.refrigerators['storeId']
+cf_device_id = config.refrigerators['deviceId']
+cf_network_server = config.network_info['server_request_url']
+cf_master_server = config.network_info['raspberry_base_url']
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)

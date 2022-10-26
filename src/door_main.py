@@ -1,22 +1,16 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
 import time
 import serial
 import redis
 import logging
 import datetime
-# import config
+import config
 import urllib3
 from playsound import playsound
 import request_main
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-
-cf_path = config['path']['path']
-cf_door_port = config['refrigerators']['door']
+cf_path = config.path['path']
+cf_door_port = config.refrigerators['door']
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 Arduino = serial.Serial(port=cf_door_port, baudrate=9600, timeout=0.1)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -73,8 +67,8 @@ while True:
             rd.set('err_type','except')
             request_main.device_err()
             logger.info(f'[{log_time} | DOOR LOCK ERR]')
-            
-        #냉장고 내부 재시작
+
+        # 냉장고 내부 재시작
         if door == b'restart':
             Arduino.write(str('80').encode('utf-8'))
             rd.delete('door')

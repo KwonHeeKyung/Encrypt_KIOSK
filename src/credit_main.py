@@ -1,21 +1,14 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
-
 import requests
 import json
 import redis
 import logging
 import datetime
 import urllib3
-# import config
+import config
 import request_main
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-
-cf_path = config['path']['path']
+cf_path = config.path['path']
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)

@@ -2,15 +2,13 @@
 
 import datetime
 import subprocess
-import configparser
 import time
 import redis
 import urllib3
 import logging
+import src.config as config
 
-config = configparser.ConfigParser()
-config.read('src/config.ini')
-cf_path = config['path']['path']
+cf_path = config.path['path']
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)

@@ -1,6 +1,5 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
 from tkinter import *
 import tkinter.font
 from tkinter import messagebox
@@ -10,11 +9,8 @@ from playsound import playsound
 import json
 import datetime
 import request_main
-# import config
-import configparser
+import config
 
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
 #키오스크 UI
 class Uipage:
     def __init__(self, root, rd):
@@ -22,7 +18,7 @@ class Uipage:
         self.root = root
         self.root.title("INTERMINDS")
         self.canvas = Canvas(self.root, height=1024, width=600)
-        self.cf_path = config['path']['path']
+        self.cf_path = config.path['path']
         self.start_img = PhotoImage(file=self.cf_path + 'asset/START.png')
         self.sign_img = PhotoImage(file=self.cf_path + 'asset/SIGN.png')
         self.card_img = PhotoImage(file=self.cf_path + 'asset/CARD_INSERT.png')
@@ -52,9 +48,8 @@ class Uipage:
         self.signImage = None
         self.xold = None
         self.yold = None
-        
 
-    #시작화면 복귀   
+    #시작화면 복귀
     def comeback(self):
         page_timer = self.rd.get('nowPage')
         if page_timer is None:
@@ -107,7 +102,6 @@ class Uipage:
             self.cnt = 0
         self.root.after(1000, self.comeback)
 
-
     #터치 버튼 이벤트
     def S_BTN(self, event):
         flg = self.rd.get('nowPage')
@@ -129,7 +123,7 @@ class Uipage:
             if 210 < event.x < 380 and 900 < event.y < 990:
                 self.START_PAGE()
 
-    #시직화면
+    #시작화면
     def START_PAGE(self):
         self.clearAllWidgets()
         self.rd.set('nowPage', 'start')
