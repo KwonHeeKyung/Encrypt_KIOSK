@@ -2,22 +2,26 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
+import os
 
 import requests
 import serial
 import redis
 import datetime
 import logging
-import config
+# import config
 import urllib3
 import request_main
 import ctypes
+import configparser
 
-cf_path = config.path['path']
-storeId = config.refrigerators['storeId']
-cf_scanner_port = config.refrigerators['scanner']
-deviceId = config.refrigerators['deviceId']
-companyId = config.refrigerators['companyId']
+config = configparser.ConfigParser()
+config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
+cf_path = config['path']['path']
+storeId = config['refrigerators']['storeId']
+cf_scanner_port = config['refrigerators']['scanner']
+deviceId = config['refrigerators']['deviceId']
+companyId = config['refrigerators']['companyId']
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 Scanner = serial.Serial(port=cf_scanner_port, baudrate=9600, timeout=1)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

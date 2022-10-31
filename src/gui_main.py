@@ -1,5 +1,6 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
+import os
 from tkinter import *
 import tkinter.font
 from tkinter import messagebox
@@ -9,8 +10,11 @@ from playsound import playsound
 import json
 import datetime
 import request_main
-import config
+# import config
+import configparser
 
+config = configparser.ConfigParser()
+config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
 #키오스크 UI
 class Uipage:
     def __init__(self, root, rd):
@@ -18,7 +22,7 @@ class Uipage:
         self.root = root
         self.root.title("INTERMINDS")
         self.canvas = Canvas(self.root, height=1024, width=600)
-        self.cf_path = config.path['path']
+        self.cf_path = config['path']['path']
         self.start_img = PhotoImage(file=self.cf_path + 'asset/START.png')
         self.sign_img = PhotoImage(file=self.cf_path + 'asset/SIGN.png')
         self.card_img = PhotoImage(file=self.cf_path + 'asset/CARD_INSERT.png')
