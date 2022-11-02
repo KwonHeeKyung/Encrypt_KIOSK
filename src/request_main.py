@@ -110,6 +110,8 @@ def device_err():
         text_type = '장시간 문열림 알림'
     elif err_type == b'payment':
         text_type = '잔액부족 결제실패'
+    elif err_type == b'unknown':
+        text_type = '미확인 에러 발생'
     res = requests.post(f'{cf_network_server}kakao_alarm',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                               "alarmHeader": "alarm", 'subjectHeader': "키오스크", 'alarmContext': text_type}, verify=False)
