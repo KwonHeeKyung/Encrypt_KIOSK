@@ -54,10 +54,10 @@ def tokenRes():
         rd.set('msg', 'sspay_deny')
         logger.info(f'[{log_time} | 카드 아니고 토큰 발급 실패함]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'C':
-        #if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
-        #        rd.set('msg', 'hh_deny')
-        #        logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
-
+        if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
+               rd.set('msg', 'hh_deny')
+               logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
+        else:
             logger.info(f'[{log_time} | TokenRes Result]' + '\n' + f'[TID : {token_data["RQ02"]}, 응답코드 :{token_data["RS04"]}, 카드사 코드 : {token_data["RS11"]}, Token : {token_data["RS17"]}]')
             rd.set('token', token_data['RS17'])
             token = rd.get('token').decode('utf-8')
@@ -175,6 +175,7 @@ while True:
                 ck_check()
                 rd.set('msg', 'remove')
     except Exception as err:
-        rd.set('msg', '003')
         logger.info(f'[{log_time} | PAYMENT FAIL]' + '\n' + err)
+        rd.set('err_type', 'unknown')
+        request_main.device_err()
 
