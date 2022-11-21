@@ -6,7 +6,6 @@ import serial
 import redis
 import logging
 import datetime
-# import config
 import urllib3
 from playsound import playsound
 import request_main
