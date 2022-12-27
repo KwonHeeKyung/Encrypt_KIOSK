@@ -23,7 +23,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path+'kiosk_status.log',level=logging.DEBUG)
 logger = logging.getLogger('UNO_LOG')
 cnt = 0
-
+flg = 0
 while True:
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
