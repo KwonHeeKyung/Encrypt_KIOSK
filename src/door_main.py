@@ -73,6 +73,7 @@ while True:
         #방어로직 한번안에 문 닫히면 관리자 돌림
         if flg == 1 and uno == 'r':
             flg -= 1
+            logger.info(f'[{log_time} | DOOR LOCK Detection]')
             request_main.admin_open()
             request_main.admin_close()
         #방어로직 두번 돌았으면 에러로 판정
