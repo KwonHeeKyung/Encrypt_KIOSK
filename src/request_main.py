@@ -123,6 +123,8 @@ def device_err():
 
 #이벤트 해제
 def release_event():
+    log_time = datetime.datetime.now()
+    log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     res = requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": '000'}, verify=False)
     logger.info(f'[{log_time} | Release event]')
     logger.info(res.text.replace('\n', ''))

@@ -3,7 +3,7 @@
 import base64
 import json
 import os
-
+import time
 import requests
 import serial
 import redis
@@ -156,4 +156,5 @@ while True:
         request_main.device_err()
         logger.info('[SCANNER FAIL]')
         logger.info(err)
-        break
+        time.sleep(10)
+        os.system('start.sh')
