@@ -67,22 +67,22 @@ while True:
                 rd.delete('door')
                 rd.set("msg",'infer')
                 request_main.door_close()
-        #문여닫힘 방어로직 작동
+        # 문여닫힘 방어로직 작동
         if uno == '2':
             flg += 1
-        #방어로직 한번안에 문 닫히면 관리자 돌림
-        if flg == 1 and uno == 'r':
-            flg -= 1
-            logger.info(f'[{log_time} | DOOR LOCK Detection]')
+        # 방어로직 두번 돌았으면 에러로 판정
+        if uno == '2' and flg == 1:
+            rd.set('err_type', 'lock')
+            logger.info(f'[{log_time} | LOCK ERR]')
+            request_main.door_close()
+            request_main.device_err()
+        # 문 다시 닫힘 / 관리자 오클 / 키오스크 재실행
+        if uno == 'r' and flg >= 1:
+            logger.info(f'[{log_time} | DOOR RECLOSED]')
             request_main.admin_open()
             request_main.admin_close()
-        #방어로직 두번 돌았으면 에러로 판정
-        if flg == 2 and uno == '2':
-            rd.set('err_type','except')
-            request_main.device_err()
-            logger.info(f'[{log_time} | DOOR LOCK ERR]')
-            break
-
+            logger.info(f'[{log_time} | REBOOT]')
+            os.system('start.sh')
         # 냉장고 내부 재시작
         if door == b'restart':
             Arduino.write(str('80').encode('utf-8'))
