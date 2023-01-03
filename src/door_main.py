@@ -9,13 +9,9 @@ import datetime
 import urllib3
 from playsound import playsound
 import request_main
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-
-cf_path = config['path']['path']
-cf_door_port = config['refrigerators']['door']
+import config
+cf_path = config.path['path']
+cf_door_port = config.refrigerators['door']
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 Arduino = serial.Serial(port=cf_door_port, baudrate=9600, timeout=0.1)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -67,22 +63,24 @@ while True:
                 rd.delete('door')
                 rd.set("msg",'infer')
                 request_main.door_close()
-        # 문여닫힘 방어로직 작동
+                if rd.get('err_type') == b'long':
+                    request_main.release_event()
+        # 방어로직 카운트
         if uno == '2':
             flg += 1
-        # 방어로직 두번 돌았으면 에러로 판정
-        if uno == '2' and flg == 1:
+        #방어로직 2회발생시 알림 발생
+        if uno == '2' and flg == 2:
             rd.set('err_type', 'lock')
+            rd.set('msg','device_err')
             logger.info(f'[{log_time} | LOCK ERR]')
-            request_main.door_close()
             request_main.device_err()
         # 문 다시 닫힘 / 관리자 오클 / 키오스크 재실행
-        if uno == 'r' and flg >= 1:
+        if uno == 'r' and flg > 0:
             logger.info(f'[{log_time} | DOOR RECLOSED]')
             request_main.admin_open()
             request_main.admin_close()
             logger.info(f'[{log_time} | REBOOT]')
-            os.system('start.sh')
+            os.system(cf_path + 'start.sh')
         # 냉장고 내부 재시작
         if door == b'restart':
             Arduino.write(str('80').encode('utf-8'))

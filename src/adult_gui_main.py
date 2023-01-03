@@ -10,10 +10,7 @@ from playsound import playsound
 import json
 import datetime
 import request_main
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
+import config
 
 #키오스크 UI
 class Uipage:
@@ -21,8 +18,8 @@ class Uipage:
         self.rd=rd
         self.root = root
         self.root.title("INTERMINDS")
-        self.cf_path = config['path']['path']
-        self.deviceId = config['refrigerators']['deviceId']
+        self.cf_path = config.path['path']
+        self.deviceId = config.refrigerators['deviceId']
         self.canvas = Canvas(self.root, height=1024, width=600)
         self.start_img = PhotoImage(file=self.cf_path+'asset/START.png')
         self.auth_select_img = PhotoImage(file=self.cf_path+'asset/SELECT_ADULT.png')

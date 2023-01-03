@@ -8,20 +8,15 @@ import json
 import requests
 import urllib3
 import datetime
-
+import config
 import logging
 
-import configparser
-
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-
-cf_path = config['path']['path']
-cf_company_id = config['refrigerators']['companyId']
-cf_store_id = config['refrigerators']['storeId']
-cf_device_id = config['refrigerators']['deviceId']
-cf_network_server = config['network_info']['server_request_url']
-cf_master_server = config['network_info']['raspberry_base_url']
+cf_path = config.path['path']
+cf_company_id = config.refrigerators['companyId']
+cf_store_id = config.refrigerators['storeId']
+cf_device_id = config.refrigerators['deviceId']
+cf_network_server = config.network_info['server_request_url']
+cf_master_server = config.network_info['raspberry_base_url']
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)
@@ -45,10 +40,9 @@ def check_status():
 
 # 문열림
 def door_open():
-    res = requests.post(f'{cf_network_server}door_opened',
+    requests.post(f'{cf_network_server}door_opened',
                         json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                               'barcode': '1234'}, verify=False)
-    return json.loads(res.text)['resultCode']
 
 # 문닫힘
 def door_close():
@@ -59,16 +53,10 @@ def door_close():
                               "needSalesInfo": "true"}, verify=False)
     logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(res.text))
     if json.loads(res.text)['resultCode'] == '000':
-        order_list = {'orderList': json.loads(res.text)["data"]['orderList']}
-        if len(order_list['orderList']) > 0:
-            data = []
-            for order_list in order_list['orderList']:
-                if int(order_list['goodsCnt']) > 0:
-                    data.append(order_list)
-            ol = json.dumps(data)
-            rd.set('ol', ol)
+        if len(json.loads(res.text)["data"]['orderList']) > 0:
+            rd.set('ol', json.dumps(json.loads(res.text)["data"]['orderList']))
             rd.set('msg', 'cal')
-        elif len(order_list['orderList']) == 0:
+        else:
             rd.set('msg', 'end_none')
     else:
         rd.set('msg', '003')
@@ -98,6 +86,8 @@ def admin_close():
 
 # 이벤트 알림
 def device_err():
+    text_type = ''
+    event_code = ''
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
     err_type = rd.get('err_type')
@@ -116,15 +106,15 @@ def device_err():
     elif err_type == b'payment':
         text_type = '결제 에러'
         event_code = 'IM_KIOSK_04'
-    res = requests.post(f'{cf_network_server}kakao_alarm', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "alarmHeader": "alarm", 'subjectHeader': "키오스크", 'alarmContext': text_type}, verify=False)
-    res_2 = requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": event_code}, verify=False)
-    logger.info(f'[{log_time} | DEVICE ERROR]')
-    logger.info(res.text.replace('\n', '') + '\n' + res_2.text.replace('\n', ''))
+    requests.post(f'{cf_network_server}kakao_alarm',  json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
+                                  "alarmHeader": "alarm", 'subjectHeader': "키오스크", 'alarmContext': text_type}, verify=False)
+    requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
+                                    "event_code": event_code}, verify=False)
+    logger.info(f'[{log_time} | Device Alert - {text_type}]')
 
 #이벤트 해제
 def release_event():
     log_time = datetime.datetime.now()
     log_time = log_time.strftime("%Y-%m-%d-%H:%M:%S")
-    res = requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": '000'}, verify=False)
+    requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id, "event_code": '000'}, verify=False)
     logger.info(f'[{log_time} | Release event]')
-    logger.info(res.text.replace('\n', ''))
