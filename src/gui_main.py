@@ -1,6 +1,5 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
 from tkinter import *
 import tkinter.font
 from tkinter import messagebox
@@ -11,10 +10,7 @@ import json
 import datetime
 import request_main
 import config
-# import configparser
-#
-# config = configparser.ConfigParser()
-# config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
+
 #키오스크 UI
 class Uipage:
     def __init__(self, root, rd):
@@ -123,10 +119,24 @@ class Uipage:
                     log_time = log_time.strftime("%Y-%m-%d-%H-%M-%S")
                     self.signImage.save(self.cf_path + f'consent/{log_time}.bmp')
                     self.rd.set('msg', 'card')
-        elif flg == b'fail' or b'no_money' or b'hh_deny' or b'sspay_deny' or b'end' or b'end_none':
+        elif flg == b'fail':
             if 210 < event.x < 380 and 900 < event.y < 990:
                 self.START_PAGE()
-
+        elif flg == b'no_money':
+            if 210 < event.x < 380 and 900 < event.y < 990:
+                self.START_PAGE()
+        elif flg == b'hh_deny' :
+            if 210 < event.x < 380 and 900 < event.y < 990:
+                self.START_PAGE()
+        elif flg == b'sspay_deny':
+            if 210 < event.x < 380 and 900 < event.y < 990:
+                self.START_PAGE()
+        elif flg == b'end':
+            if 210 < event.x < 380 and 900 < event.y < 990:
+                self.START_PAGE()
+        elif flg == b'end_none':
+            if 210 < event.x < 380 and 900 < event.y < 990:
+                self.START_PAGE()
     #시작화면
     def START_PAGE(self):
         self.clearAllWidgets()

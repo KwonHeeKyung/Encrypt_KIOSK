@@ -1,7 +1,5 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
-
 import redis
 import time
 import json
@@ -52,16 +50,13 @@ def door_close():
                         json={'storeId': cf_store_id, 'deviceId': cf_device_id, 'barcode': '1234',
                               "needSalesInfo": "true"}, verify=False)
     logger.info(f'[{log_time} | LET\'s INFER]' + '\n' + str(res.text))
-    if json.loads(res.text)['resultCode'] == '000':
-        if len(json.loads(res.text)["data"]['orderList']) > 0:
-            rd.set('ol', json.dumps(json.loads(res.text)["data"]['orderList']))
-            rd.set('msg', 'cal')
-        else:
-            rd.set('msg', 'end_none')
-    else:
+    if json.loads(res.text)['resultCode'] == '000' and len(json.loads(res.text)["data"]['orderList']) > 0:
+        rd.set('ol', json.dumps(json.loads(res.text)["data"]['orderList']))
+        rd.set('msg', 'cal')
+    elif json.loads(res.text)['resultCode'] == '000' and len(json.loads(res.text)["data"]['orderList']) == 0:
+        rd.set('msg', 'end_none')
+    if json.loads(res.text)['resultCode'] != '000' :
         rd.set('msg', '003')
-        logger.info(f'[{log_time} | INF FAIL]')
-        logger.info(res.text)
 
 # 관리자 문열림
 def admin_open():
@@ -84,7 +79,7 @@ def admin_close():
         rd.set('msg', '001')
     rd.delete('door')
 
-# 이벤트 알림
+# 장치 알림
 def device_err():
     text_type = ''
     event_code = ''
@@ -111,6 +106,7 @@ def device_err():
     requests.post(f'{cf_network_server}kiosk_status', json={'companyId': cf_company_id, 'storeId': cf_store_id, 'deviceId': cf_device_id,
                                     "event_code": event_code}, verify=False)
     logger.info(f'[{log_time} | Device Alert - {text_type}]')
+
 
 #이벤트 해제
 def release_event():

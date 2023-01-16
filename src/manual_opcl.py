@@ -1,24 +1,14 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
 import redis
 import time
 import json
 import requests
 import urllib3
 import datetime
-import logging
 import config
-# import configparser
-# config = configparser.ConfigParser()
-# config.read(os.path.join(os.path.split(__file__)[0],'config.ini'))
-#
-# cf_path = config['path']['path']
-# cf_company_id = config['refrigerators']['companyId']
-# cf_store_id = config['refrigerators']['storeId']
-# cf_device_id = config['refrigerators']['deviceId']
-# cf_network_server = config['network_info']['server_request_url']
-# cf_master_server = config['network_info']['raspberry_base_url']
+import logging
+
 cf_path = config.path['path']
 cf_company_id = config.refrigerators['companyId']
 cf_store_id = config.refrigerators['storeId']

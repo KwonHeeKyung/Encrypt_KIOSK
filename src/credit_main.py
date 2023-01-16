@@ -1,17 +1,13 @@
 # Made by Kim.Seung.Hwan / ksana1215@interminds.ai
 # -*- coding: utf-8 -*-
-import os
-
 import requests
 import json
 import redis
 import logging
 import datetime
 import urllib3
-
-import request_main
 import config
-
+import request_main
 cf_path = config.path['path']
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -19,15 +15,14 @@ logging.basicConfig(filename=cf_path + 'kiosk_status.log', level=logging.DEBUG)
 logger = logging.getLogger('EZR_LOG')
 rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-
-# 카드 삽입 체크
+#카드 삽입 체크
 def ck_check():
     insert_ck = requests.post('http://localhost:8090/?callback=jsonp12345678983543344&REQ=CK')
     insert_data = json.loads(insert_ck.text[insert_ck.text.index('(') + 1: insert_ck.text.rindex(')')].replace("'", '"'))
     insert_check = insert_data["MSG"]
     return insert_check
 
-# 토큰 발급
+#토큰 발급
 def tokenRes():
     tokenRes = requests.post('http://localhost:8090/?callback=jsonp12345678983543344&REQ=TR^^F^^^^^^^^^30^^^^TK^^^^^^^^^^^^^^^^^')
     tokenRes.raise_for_status()
@@ -52,7 +47,7 @@ def tokenRes():
         rd.set('msg', 'sspay_deny')
         logger.info(f'[{log_time} | 카드 아니고 토큰 발급 실패함]')
     if token_data["SUC"] == '00' and token_data['RS04'] == '0000' and token_data["RS31"].strip() == 'C':
-        if token_data['RS11'] == '027' or  token_data['RS11'] == '006':
+        if token_data['RS11'] == '027' or token_data['RS11'] == '006':
                 rd.set('msg', 'hh_deny')
                 logger.info(f'[{log_time} | 하나/현대카드 수기특약 거절]')
         else:
@@ -172,3 +167,4 @@ while True:
         rd.set('msg', '003')
         logger.info('[PAYMENT FAIL]')
         logger.info(err)
+
